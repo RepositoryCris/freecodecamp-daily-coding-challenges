@@ -19,26 +19,18 @@ const randomCard = (players, cards) => {
   const quantityOfRolls = players.length;
   // index manages the quantity of rolls that the program will give
   for (let i = 0; i < quantityOfRolls; i++) {
-    //console.log(i);
-
-    //console.log(cards);
-    //console.log(selectedCards);
     const randomCard = getRandom(cards);
     removedCard = Number(cards.splice(randomCard, 1));
     selectedCards.push(removedCard);
 
-    //console.log(players);
-    //console.log(selectedPlayers);
     const randomPlayer = getRandom(players);
     removedPlayer = String(players.splice(randomPlayer, 1));
-
     selectedPlayers.push(removedPlayer);
 
     const object = new Person(selectedPlayers[i], selectedCards[i]);
 
     peopleObject.push(object);
 
-    //console.log(`Player ${game.player} will play with #${game.card} card`);
     console.log(
       `Player ${selectedPlayers[i]} will play with #${selectedCards[i]} card`,
     );
