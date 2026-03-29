@@ -31,21 +31,21 @@ const randomCard = (players, cards) => {
 
     peopleObject.push(object);
 
-    console.log(
+    /*console.log(
       `Player ${selectedPlayers[i]} will play with #${selectedCards[i]} card`,
-    );
+    );*/
   }
 
   //console.log(players);
-  console.log(selectedPlayers);
+  //console.log(selectedPlayers);
   //console.log(cards);
-  console.log(selectedCards);
+  //console.log(selectedCards);
 
   peopleObject.map((element) => {
-    console.log(`${element.player} plays ${element.card}`);
+    console.log(`Card #${element.card}: ${element.player}`);
   });
 
-  return "game";
+  return peopleObject;
 };
 
 const players = [
@@ -69,32 +69,3 @@ const cards = [
 ];
 
 let test = randomCard(players, cards);
-
-console.log(test);
-/*
-console.log(getRandom(cards));
-console.log(getRandom(cards));
-console.log(getRandom(cards));
-console.log(getRandom(cards));
-console.log(getRandom(cards));
-console.log(getRandom(cards));
-console.log(getRandom(cards));
-console.log(getRandom(cards));
-console.log(getRandom(cards));
-console.log(getRandom(cards));
-console.log(getRandom(cards));
-console.log(getRandom(cards));
-console.log(getRandom(cards));
-console.log(getRandom(cards));
-console.log(getRandom(cards));
-console.log(getRandom(cards));
-console.log(getRandom(cards));
-console.log(getRandom(cards));
-console.log(getRandom(cards));
-console.log(getRandom(cards));
-console.log(getRandom(cards));
-console.log(getRandom(cards));
-console.log(getRandom(cards));
-console.log(getRandom(cards));
-console.log(getRandom(cards));
-*/
