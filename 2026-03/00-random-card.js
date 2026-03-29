@@ -32,7 +32,7 @@ const assignRandomCards = (players, cards) => {
 
     const newPlayer = new Player(selectedPlayers[i], selectedCards[i]);
 
-    currentPlayers = [...currentPlayers, newPlayer];
+    currentPlayers.push(newPlayer);
   }
 
   return currentPlayers;
