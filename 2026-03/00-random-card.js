@@ -3,52 +3,42 @@ const getRandom = (array) => {
   return random;
 };
 
-const randomCard = (players, cards) => {
-  const selectedPlayers = [];
-  const selectedCards = [];
-
-  function Person(player, card) {
-    this.player = player;
+class Player {
+  constructor(name, card) {
+    this.name = name;
     this.card = card;
   }
+}
 
-  let peopleObject = [];
+const assignRandomCards = (players, cards) => {
+  const copyPlayers = [...players];
+  const copyCards = [...cards];
+  const selectedPlayers = [];
+  const selectedCards = [];
+  let currentPlayers = [];
   let removedCard = "";
   let removedPlayer = "";
 
-  const quantityOfRolls = players.length;
-  // index manages the quantity of rolls that the program will give
-  for (let i = 0; i < quantityOfRolls; i++) {
-    const randomCard = getRandom(cards);
-    removedCard = Number(cards.splice(randomCard, 1));
+  const iterations = players.length;
+
+  for (let i = 0; i < iterations; i++) {
+    const randomCard = getRandom(copyCards);
+    removedCard = copyCards.splice(randomCard, 1)[0];
     selectedCards.push(removedCard);
 
-    const randomPlayer = getRandom(players);
-    removedPlayer = String(players.splice(randomPlayer, 1));
+    const randomPlayer = getRandom(copyPlayers);
+    removedPlayer = copyPlayers.splice(randomPlayer, 1)[0];
     selectedPlayers.push(removedPlayer);
 
-    const object = new Person(selectedPlayers[i], selectedCards[i]);
+    const newPlayer = new Player(selectedPlayers[i], selectedCards[i]);
 
-    peopleObject.push(object);
-
-    /*console.log(
-      `Player ${selectedPlayers[i]} will play with #${selectedCards[i]} card`,
-    );*/
+    currentPlayers = [...currentPlayers, newPlayer];
   }
 
-  //console.log(players);
-  //console.log(selectedPlayers);
-  //console.log(cards);
-  //console.log(selectedCards);
-
-  peopleObject.map((element) => {
-    console.log(`Card #${element.card}: ${element.player}`);
-  });
-
-  return peopleObject;
+  return currentPlayers;
 };
 
-const players = [
+const playersList = [
   "Arturo",
   "Martha",
   "Ignacio",
@@ -68,4 +58,12 @@ const cards = [
   23, 24,
 ];
 
-let test = randomCard(players, cards);
+const assign = assignRandomCards(playersList, cards);
+
+const sortedByCardAsc = [...assign].sort((a, b) => a.card - b.card);
+
+console.log(sortedByCardAsc.map((p) => `${p.card}: ${p.name}`).join("\n"));
+//console.table(sortedByCardAsc, ["name", "card"]);
+//assign.forEach((player) => console.log(player));
+//assign.map((p) => console.log(`card: ${p.card} - ${p.name}`));
+//console.table(assign);
