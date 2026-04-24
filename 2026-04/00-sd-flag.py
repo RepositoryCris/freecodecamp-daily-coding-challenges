@@ -1,3 +1,4 @@
+'''
 from karel.stanfordkarel import *
 
 def main():
@@ -133,3 +134,5 @@ def turn_right():
 # don't change this code
 if __name__ == '__main__':
     main()
+
+'''

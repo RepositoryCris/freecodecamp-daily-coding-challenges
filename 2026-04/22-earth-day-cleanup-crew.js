@@ -1,66 +1,46 @@
 function getCleanupScore(items) {
-  const list = [
-    {
-      item: "bottle",
-      value: 10,
-    },
-    {
-      item: "can",
-      value: 6,
-    },
-    {
-      item: "bag",
-      value: 8,
-    },
-    {
-      item: "tire",
-      value: 35,
-    },
-    {
-      item: "straw",
-      value: 4,
-    },
-    {
-      item: "cardboard",
-      value: 3,
-    },
-    {
-      item: "newspaper",
-      value: 3,
-    },
-    {
-      item: "shoe",
-      value: 12,
-    },
-    {
-      item: "electronics",
-      value: 25,
-    },
-    {
-      item: "battery",
-      value: 18,
-    },
-    {
-      item: "mattress",
-      value: 38,
-    },
-  ];
-  let totalCleanupScore = 0;
-  let previous = "";
-  let actual = "";
+  const values = {
+    bottle: 10,
+    can: 6,
+    bag: 8,
+    tire: 35,
+    straw: 4,
+    cardboard: 3,
+    newspaper: 3,
+    shoe: 12,
+    electronics: 25,
+    battery: 18,
+    mattress: 38,
+  };
 
-  for (let object of items) {
-    const findElement = list.find((thing) => {
-      if (thing.item === object) {
-        totalCleanupScore = totalCleanupScore + thing.value;
-      }
-    });
-    /*if (findElement) {
-      totalCleanupScore = totalCleanupScore + thing.value;
-    }*/
+  let score = 0;
+  let streak = 1;
+
+  for (let i = 0; i < items.length; i++) {
+    let item = items[i];
+
+    // Get base value (handle rare items)
+    let base = Array.isArray(item) ? item[1] : values[item];
+
+    // Check if same as previous item (for streak bonus)
+    if (i > 0 && items[i] === items[i - 1]) {
+      streak++;
+    } else {
+      streak = 1;
+    }
+
+    // Calculate score with streak bonus
+    let points = base + (streak - 1);
+
+    // Apply multiplier every 5th item
+    if ((i + 1) % 5 === 0) {
+      points *= Math.floor((i + 1) / 5) + 1;
+    }
+
+    score += points;
   }
 
-  return totalCleanupScore;
+  return score;
 }
 
 console.log(getCleanupScore(["bottle", "straw", "shoe", "battery"])); // should return 44.
