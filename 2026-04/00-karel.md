@@ -77,13 +77,10 @@ def process_image_to_karel(image_path, output_filename="karel_functions.txt"):
 
 if __name__ == "__main__":
     # Configuration - Using raw string for Windows paths
-    INPUT_IMAGE = r"c:\Users\Cristian\Desktop\Lota\renderKarel.png"
+    INPUT_IMAGE = r"C:\your_image.png" #put the direction of your image
     OUTPUT_FILE = "karel_functions.txt"
 
     process_image_to_karel(INPUT_IMAGE, OUTPUT_FILE)
-
-# Use it
-process_image_to_karel(r"C:\your_image.png") #put the direction of your image
 ```
 
 ### 🧩 3. Assemble in Karel - Code in Place Stanford
