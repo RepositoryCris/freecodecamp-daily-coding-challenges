@@ -36,6 +36,13 @@ def main():
         if should_exit:
             return
 
+        # Capture ALL mouse clicks registered in this frame slice
+        clicks = get_input_clicks(canvas)
+        
+        # Handle Input Phase (Mouse Clicks via Scalable Function)
+        for click_x, click_y in get_input_clicks(canvas):
+            print(f"Mouse clicked at position: ({click_x}, {click_y})")
+            
         # 2. Update Position & Physics Phase
         if dx != 0 or dy != 0:
             canvas.move(karel, dx, dy)
@@ -43,6 +50,20 @@ def main():
 
         # 3. Frame Tick Synchronization Phase
         time.sleep(DELAY)
+
+
+def get_input_clicks(canvas):
+    """
+    Polls the canvas for mouse events and yields valid coordinate tuples.
+    This acts as a memory-efficient stream generator.
+    """
+    clicks = canvas.get_new_mouse_clicks()
+    
+    if clicks is not None:
+        for click in clicks:
+            if click is not None:
+                # Yields the data immediately without creating a temporary list
+                yield click[0], click[1]
 
 
 def get_input_vector(canvas):
