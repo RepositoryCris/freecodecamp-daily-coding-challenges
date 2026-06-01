@@ -1,5 +1,7 @@
 from graphics import Canvas
 import time
+import math
+
 
 # Canvas and Game Loop Configurations
 CANVAS_WIDTH = 400
@@ -20,7 +22,9 @@ KEY_RIGHT = 'RIGHT_ARROW'
 
 START_X = CANVAS_WIDTH / 2 - KAREL_WIDTH / 2
 START_Y = CANVAS_HEIGHT / 2 - KAREL_HEIGHT / 2 
-
+LASER_WIDTH = 8
+LASER_HEIGHT = 8
+LASER_COLOR = "#00FFFF"
 
 def main():
     canvas = Canvas(CANVAS_WIDTH, CANVAS_HEIGHT)
@@ -41,7 +45,8 @@ def main():
         
         # Handle Input Phase (Mouse Clicks via Scalable Function)
         for click_x, click_y in get_input_clicks(canvas):
-            print(f"Mouse clicked at position: ({click_x}, {click_y})")
+            #print(f"Mouse clicked at position: ({click_x}, {click_y})")
+            attack_coordinate(canvas, click_x, click_y, karel)
             
         # 2. Update Position & Physics Phase
         if dx != 0 or dy != 0:
@@ -50,6 +55,75 @@ def main():
 
         # 3. Frame Tick Synchronization Phase
         time.sleep(DELAY)
+
+def attack_coordinate(canvas, click_x, click_y, karel_object):
+    # Get Karel's current position (center of the image)
+    karel_x = canvas.get_left_x(karel_object) + KAREL_WIDTH / 2
+    karel_y = canvas.get_top_y(karel_object) + KAREL_HEIGHT / 2
+    
+    # Calculate direction vector from Karel to click point
+    dx = click_x - karel_x
+    dy = click_y - karel_y
+    
+    # Calculate distance and normalize direction
+    distance = math.sqrt(dx**2 + dy**2)
+    if distance == 0:  # Avoid division by zero
+        return
+    
+    # Normalize direction (make it length 1)
+    direction_x = dx / distance
+    direction_y = dy / distance
+    
+    # Create laser at Karel's position
+    laser_id = create_laser(canvas, karel_x, karel_y)
+
+    # Animate the laser traveling toward click point
+    LASER_SPEED = 8 # Pixels per frame
+    traveled = 0
+
+    while traveled < distance:
+        # Calculate how far to move this frame
+        move_distance = min(LASER_SPEED, distance - traveled)
+        
+        # Move laser relative to its current position
+        canvas.move(laser_id, direction_x * move_distance, direction_y * move_distance)
+        
+        traveled += move_distance
+        time.sleep(DELAY / 2)  # Faster animation
+        
+        # Optional: Remove laser when it reaches target
+        if traveled >= distance:
+            canvas.delete(laser_id)
+            # Add hit effect here (optional)
+            create_hit_effect(canvas, click_x, click_y)
+    
+    return laser_id
+
+def create_hit_effect(canvas, x, y):
+    """Create a small explosion effect at impact point"""
+    # Create expanding circles
+    for size in [5, 8, 11, 14]:
+        # Use the same pattern as create_rectangle
+        explosion = canvas.create_oval(
+            x - size,  # left_x
+            y - size,  # top_y
+            x + size,  # right_x
+            y + size,  # bottom_y
+            "#FFFF00"  # color (yellow)
+        )
+        time.sleep(0.03)
+        canvas.delete(explosion)
+    
+    # Final white flash
+    flash = canvas.create_oval(
+        x - 4,
+        y - 4,
+        x + 4,
+        y + 4,
+        "#FFFFFF"  # white
+    )
+    time.sleep(0.05)
+    canvas.delete(flash)
 
 
 def get_input_clicks(canvas):
@@ -125,6 +199,25 @@ def draw_image(canvas, left_x, top_y, image_name):
         image_name
     )
     return image
+
+
+def create_laser(canvas, x, y):
+    left_x = x
+    top_y = y
+    right_x = x + LASER_WIDTH
+    bottom_y = y + LASER_HEIGHT
+    color = LASER_COLOR
+    outline = "outline"
+
+    laser_gun = canvas.create_rectangle(
+        left_x, 
+        top_y, 
+        right_x, 
+        bottom_y,
+        color,
+        outline
+    )
+    return laser_gun
 
 
 if __name__ == '__main__':
