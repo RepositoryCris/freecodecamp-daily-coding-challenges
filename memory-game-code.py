@@ -15,13 +15,13 @@ SPACE_X_RIGHT_UI_PAIRS = 300
 
 # CARD scales
 STANDARD_CARD_SIZE = 128  # Normal gameplay size
-GALLERY_WIDTH = 300       # High-res study size requested
-GALLERY_HEIGHT = 300      # High-res study size requested
+GALLERY_WIDTH = 300       # High-res study size
+GALLERY_HEIGHT = 300      # High-res study size
 
 # CANVAS dimensions
 CANVAS_WIDTH = STANDARD_CARD_SIZE * ROUND_ROWS + (GAP*(ROUND_ROWS+1))
 CANVAS_HEIGHT = STANDARD_CARD_SIZE * ROUND_COLUMNS + (GAP*(ROUND_COLUMNS+1)) + EMPTY_Y_SPACE
-print(CANVAS_WIDTH, CANVAS_HEIGHT)
+
 # GAME constants 
 TOTAL_CONCEPTS = 24
 PAIRS_PER_ROUND = 12
@@ -115,15 +115,15 @@ class Card:
 
 class GameState:
     def __init__(self):
-        self.current_round = 1  # 1 = Round 1, 2 = Round 2, 3 = Gallery Mode
-        self.round_1_complete = False
-        self.round_2_complete = False
+        self.current_round = 1    # 1 = Round 1, 2 = Round 2, 3 = Gallery Mode      
+        self.round_1_complete = False    
+        self.round_2_complete = False   
         
-        # Independent Scores
+        # Game Metric Scores
         self.round_1_score = 0
         self.round_2_score = 0
         
-        # Completely Independent Canvas Text Elements Tracking
+        # Element pointers for text updates
         self.r1_ui_pairs = None
         self.r1_ui_console = None
         
@@ -162,7 +162,6 @@ def render_window_chrome(canvas, game_state):
 
     create_message(canvas, CANVAS_WIDTH / 2, 35, "Programming Fundamentals Match", 50, MAIN_TEXT, "center")
 
-    # Clear old tracking references to avoid hanging graphics memory pointers
     game_state.r1_ui_pairs = None
     game_state.r1_ui_console = None
     game_state.r2_ui_pairs = None
@@ -170,11 +169,10 @@ def render_window_chrome(canvas, game_state):
     game_state.gal_ui_pairs = None
     game_state.gal_ui_console = None
 
-    # Render distinct components strictly depending on the current application screen state
     if game_state.current_round == 1:
         text = f"Round 1:  {game_state.round_1_score}/{PAIRS_PER_ROUND} Pairs"
         if not game_state.round_1_complete:
-            console_text = f"🔍 Match each concept with its visual representation."
+            console_text = "🔍 Match each concept with its visual representation."
         else:
             console_text = "🎉 Round 1 Complete! Round 2 is now unlocked."
         game_state.r1_ui_pairs = create_message(canvas, CANVAS_WIDTH - SPACE_X_RIGHT_UI_PAIRS, SPACE_Y_UI_PAIRS_UI_CONSOLE, text, 18, MAIN_TEXT)
@@ -183,14 +181,15 @@ def render_window_chrome(canvas, game_state):
     elif game_state.current_round == 2:
         text = f"Round 2:  {game_state.round_2_score}/{PAIRS_PER_ROUND} Pairs"
         if not game_state.round_2_complete:
-            console_text = f"🔍 Match each concept with its visual representation."
+            console_text = "🔍 Match each concept with its visual representation."
         else:
             console_text = "🎉 Congratulations! Study Mode is now unlocked."
         game_state.r2_ui_pairs = create_message(canvas, CANVAS_WIDTH - SPACE_X_RIGHT_UI_PAIRS, SPACE_Y_UI_PAIRS_UI_CONSOLE, text, 18, MAIN_TEXT)
         game_state.r2_ui_console = create_message(canvas, 10, SPACE_Y_UI_PAIRS_UI_CONSOLE, console_text, 18, MAIN_TEXT)
 
     else:
-        text = f"Reviewing Pair: {game_state.gallery_index + 1}/{TOTAL_CONCEPTS}"
+        total_available = len(game_state.gallery_pairs_list)
+        text = f"Reviewing Pair: {game_state.gallery_index + 1}/{total_available}"
         console_text = "Study Mode: 🖼️ illustrations | 📝 concepts"
         game_state.gal_ui_pairs = create_message(canvas, CANVAS_WIDTH - SPACE_X_RIGHT_UI_PAIRS, SPACE_Y_UI_PAIRS_UI_CONSOLE, text, 18, MAIN_TEXT)
         game_state.gal_ui_console = create_message(canvas, 10, SPACE_Y_UI_PAIRS_UI_CONSOLE, console_text, 18, MAIN_TEXT)
@@ -213,7 +212,7 @@ def render_window_chrome(canvas, game_state):
     else:
         canvas.create_image(gal_zone["x_initial"], gal_zone["y_initial"], GALLERY_DISABLED_IMG)
 
-    return {
+    ui_map = {
         "reset_zone": reset_zone,
         "r1_zone": r1_zone,
         "r2_zone": r2_zone,
@@ -221,6 +220,8 @@ def render_window_chrome(canvas, game_state):
         "prev_zone": None, 
         "next_zone": None
     }
+
+    return ui_map
 
 
 def create_divided_deck(terms_list, game_state):
@@ -307,6 +308,8 @@ def draw_active_scene(canvas, state, ui):
         current_pair["img_card"].draw(canvas, STANFORD_CARD_FACE_DOWN, force_face_up=True)
         current_pair["text_card"].draw(canvas, STANFORD_CARD_FACE_DOWN, force_face_up=True)
         render_gallery_pagination_buttons(canvas, state, ui)
+        
+        print(f"🖼️ Displaying Gallery Pair [{state.gallery_index + 1}]: Description Asset -> '{current_pair['text_card'].asset_path}' | Illustration Asset -> '{current_pair['img_card'].asset_path}'")
     else:
         for card in state.deck:
             if card.execution_round == state.current_round:
@@ -314,99 +317,93 @@ def draw_active_scene(canvas, state, ui):
 
 
 def render_gallery_pagination_buttons(canvas, state, ui):
-    button_y = (CANVAS_HEIGHT - SPACE_Y_UI_PAIRS_UI_CONSOLE) / 2 + GALLERY_HEIGHT/2
     button_w = 24
     button_h = 24
+
+    current_pair = state.gallery_pairs_list[state.gallery_index]
+    img_card = current_pair["img_card"]
+
+    button_y = img_card.y_initial + (GALLERY_HEIGHT / 2) - (button_h / 2)
     
     if state.gallery_index > 0:
-        prev_x = 80
+        prev_x = img_card.x_initial - 40 - button_w
         canvas.create_image(prev_x, button_y, SHOW_PREVIOUS_IMG)
-        ui["prev_zone"] = {"x_initial": prev_x, "y_initial": button_y, "x_final": prev_x + button_w, "y_final": button_y + button_h}
+        ui["prev_zone"] = {
+            "x_initial": prev_x, 
+            "y_initial": button_y, 
+            "x_final": prev_x + button_w, 
+            "y_final": button_y + button_h
+        }
     else:
         ui["prev_zone"] = None
 
-    if state.gallery_index < TOTAL_CONCEPTS - 1:
-        next_x = CANVAS_WIDTH - 80
+    if state.gallery_index < len(state.gallery_pairs_list) - 1:
+        text_card = current_pair["text_card"]
+        next_x = text_card.x_final + 40
         canvas.create_image(next_x, button_y, SHOW_NEXT_IMG)
-        ui["next_zone"] = {"x_initial": next_x, "y_initial": button_y, "x_final": next_x + button_w, "y_final": button_y + button_h}
+        ui["next_zone"] = {
+            "x_initial": next_x, 
+            "y_initial": button_y, 
+            "x_final": next_x + button_w, 
+            "y_final": button_y + button_h
+        }
     else:
         ui["next_zone"] = None
 
 
 def memory_game_logic(canvas, state, ui):
-    print(f"Round 1 Score: {state.round_1_score} | Round 2 Score: {state.round_2_score}")
-
     while True:
-        first_card = get_clicked_card(canvas, state, ui)
+        # Pass and receive the updated UI mapping configuration continuously
+        first_card, ui = get_clicked_card(canvas, state, ui)
         if first_card == "RESET": return 
         if first_card == "CHANGE_ROUND": continue 
+
+        if state.current_round == 3:
+            continue
 
         first_card.is_revealed = True
         first_card.draw(canvas, STANFORD_CARD_FACE_DOWN)
         
-        second_card = get_clicked_card(canvas, state, ui, first_card)
+        second_card, ui = get_clicked_card(canvas, state, ui, first_card)
         if second_card == "RESET": return
         if second_card == "CHANGE_ROUND":
-            first_card.is_revealed = False
-            first_card.draw(canvas, STANFORD_CARD_FACE_DOWN)
+            if first_card and not isinstance(first_card, str):
+                first_card.is_revealed = False
+                first_card.draw(canvas, STANFORD_CARD_FACE_DOWN)
             continue
 
         second_card.is_revealed = True
         second_card.draw(canvas, STANFORD_CARD_FACE_DOWN)
 
-        print(f"First choice data value: {first_card.asset_path}")
-        print(f"Second choice data value: {second_card.asset_path}")
-
         if first_card.base_concept == second_card.base_concept:          
             first_card.is_matched = True
             second_card.is_matched = True
-            print("Excellent! ✅ You found a pair.")
             
-            # 1. Independent score management updates
             if state.current_round == 1:
                 state.round_1_score += 1
                 current_score = state.round_1_score
-                revealed_cards = state.round_1_score * 2
-                
-                # Update text components dedicated strictly to Round 1
                 canvas.change_text(state.r1_ui_pairs, f"Pairs found: {current_score}/{PAIRS_PER_ROUND}")
                 canvas.change_text(state.r1_ui_console, "✅ Excellent! You found a pair.")
             else:
                 state.round_2_score += 1
                 current_score = state.round_2_score
-                revealed_cards = state.round_2_score * 2
-                
-                # Update text components dedicated strictly to Round 2
                 canvas.change_text(state.r2_ui_pairs, f"Pairs found: {current_score}/{PAIRS_PER_ROUND}")
                 canvas.change_text(state.r2_ui_console, "✅ Excellent! You found a pair.")
             
-            print("---------------------------------------")
-            print(f"Pairs found in Round {state.current_round}: {current_score}/{PAIRS_PER_ROUND}")
-            
-            round_cards = [c for c in state.deck if c.execution_round == state.current_round]
-            hidden_cards_representation = [c.asset_path if c.is_matched else "*" for c in round_cards]
-            print(f"{revealed_cards}/{PAIRS_PER_ROUND * 2}", hidden_cards_representation)
-            
             time.sleep(0.5)
 
-            # 2. Check for round target completions independently
             if current_score == PAIRS_PER_ROUND:
                 if state.current_round == 1:
                     state.round_1_complete = True
-                    print("Well done with Round 1!")
                     canvas.change_text(state.r1_ui_console, "🎉 Round 1 Complete! Round 2 is now unlocked.")
                     ui = render_window_chrome(canvas, state)
                     draw_active_scene(canvas, state, ui)
                 else:
                     state.round_2_complete = True
-                    print("Round 2 Complete! Game Finished.")
                     canvas.change_text(state.r2_ui_console, "🎉 Congratulations! Study Mode unlocked.")
                     ui = render_window_chrome(canvas, state)
                     draw_active_scene(canvas, state, ui)
         else:
-            print("Not a match. Flipping back... 🃏 Keep going—you'll find it.")
-            
-            # Modify target active loop text surfaces safely based on active screen states
             if state.current_round == 1:
                 canvas.change_text(state.r1_ui_console, "❌ Not a match. Keep trying!")
             else:
@@ -423,74 +420,66 @@ def memory_game_logic(canvas, state, ui):
 def get_clicked_card(canvas, state, ui, first_card=None):
     while True:
         click = canvas.wait_for_click()
-        click_x, click_y = click[0], click[1]
+        click_x = click[0]
+        click_y = click[1]
 
         if (ui["reset_zone"]["x_initial"] <= click_x <= ui["reset_zone"]["x_final"]) and \
            (ui["reset_zone"]["y_initial"] <= click_y <= ui["reset_zone"]["y_final"]):
             print("user clicked on the reset button")
-            return "RESET"
+            return "RESET", ui
 
         if (ui["r1_zone"]["x_initial"] <= click_x <= ui["r1_zone"]["x_final"]) and \
            (ui["r1_zone"]["y_initial"] <= click_y <= ui["r1_zone"]["y_final"]):
             if state.current_round != 1:
-                print("Navigating back to check historical view of Round 1 space.")
                 state.current_round = 1
                 ui = render_window_chrome(canvas, state)
                 update_board_layout_coordinates(state)
                 draw_active_scene(canvas, state, ui)
-                return "CHANGE_ROUND"
+                return "CHANGE_ROUND", ui
 
         if (ui["r2_zone"]["x_initial"] <= click_x <= ui["r2_zone"]["x_final"]) and \
            (ui["r2_zone"]["y_initial"] <= click_y <= ui["r2_zone"]["y_final"]):
             if not state.round_1_complete:
-                print("Locked Action Target: Clear Round 1 to view this space context block.")
                 canvas.change_text(state.r1_ui_console, "Complete Round 1 to unlock Round 2.")
                 continue
             elif state.current_round != 2:
-                print("Navigating to look at the Round 2 view space.")
                 state.current_round = 2
                 ui = render_window_chrome(canvas, state)
                 update_board_layout_coordinates(state)
                 draw_active_scene(canvas, state, ui)
-                return "CHANGE_ROUND"
+                return "CHANGE_ROUND", ui
 
         if (ui["gal_zone"]["x_initial"] <= click_x <= ui["gal_zone"]["x_final"]) and \
            (ui["gal_zone"]["y_initial"] <= click_y <= ui["gal_zone"]["y_final"]):
             if not state.round_2_complete:
-                # Handle error output updates smoothly on whatever screen layout is currently open
                 if state.current_round == 1:
                     canvas.change_text(state.r1_ui_console, "Complete both rounds to unlock Study Mode.")
                 elif state.current_round == 2:
                     canvas.change_text(state.r2_ui_console, "Complete both rounds to unlock Study Mode.")
                 continue
             elif state.current_round != 3:
-                print("Entering Study Flashcards Gallery Mode...")
                 state.current_round = 3
                 ui = render_window_chrome(canvas, state)
                 update_board_layout_coordinates(state)
                 draw_active_scene(canvas, state, ui)
-                return "CHANGE_ROUND"
+                return "CHANGE_ROUND", ui
 
         if state.current_round == 3:
             if ui["prev_zone"] and (ui["prev_zone"]["x_initial"] <= click_x <= ui["prev_zone"]["x_final"]) and \
                (ui["prev_zone"]["y_initial"] <= click_y <= ui["prev_zone"]["y_final"]):
                 state.gallery_index -= 1
-                print(f"Showing previous flashcard pair. Index: {state.gallery_index}")
-                
                 ui = render_window_chrome(canvas, state)
                 update_board_layout_coordinates(state)  
                 draw_active_scene(canvas, state, ui)
-                return "CHANGE_ROUND"
+                continue 
             
             if ui["next_zone"] and (ui["next_zone"]["x_initial"] <= click_x <= ui["next_zone"]["x_final"]) and \
                (ui["next_zone"]["y_initial"] <= click_y <= ui["next_zone"]["y_final"]):
                 state.gallery_index += 1
-                print(f"Showing next flashcard pair. Index: {state.gallery_index}")
-                
                 ui = render_window_chrome(canvas, state)
                 update_board_layout_coordinates(state)  
                 draw_active_scene(canvas, state, ui)
-                return "CHANGE_ROUND"
+                continue
                 
             continue 
 
@@ -498,10 +487,8 @@ def get_clicked_card(canvas, state, ui, first_card=None):
         for card in state.deck:
             if card.execution_round == state.current_round and card.is_clicked(click_x, click_y):
                 is_card_selected = True
-                print("Valid, you clicked inside a card")
                 
                 if card.is_matched:
-                    print("That card has already been matched. Try again.")
                     if state.current_round == 1:
                         canvas.change_text(state.r1_ui_console, "This pair has already been completed.")
                     else:
@@ -509,7 +496,6 @@ def get_clicked_card(canvas, state, ui, first_card=None):
                     break 
                     
                 if first_card and card.index == first_card.index:
-                    print("You clicked the same card twice. Try again.")
                     if state.current_round == 1:
                         canvas.change_text(state.r1_ui_console, "Choose a different card.")
                     else:
@@ -520,10 +506,9 @@ def get_clicked_card(canvas, state, ui, first_card=None):
                     canvas.change_text(state.r1_ui_console, "🔍 Match each concept with its visual representation.")
                 else:
                     canvas.change_text(state.r2_ui_console, "🔍 Match each concept with its visual representation.")
-                return card
+                return card, ui
 
         if not is_card_selected:
-            print("Clicked outside! You missed all active elements.")
             if state.current_round == 1:
                 canvas.change_text(state.r1_ui_console, "Choose a card.")
             else:
@@ -561,3 +546,40 @@ def create_message(canvas, x, y, text, size, color, anchor=None):
 
 if __name__ == '__main__':
     main()
+
+
+'''
+Here is a high-level summary of the architectural and operational logic driving your memory game. We've built it using a clean, object-oriented approach coupled with an explicit state machine to handle the rendering transitions seamlessly.
+
+🏗️ 1. Core Data Architecture & State Management
+The Card Object (Card): Instead of handling raw strings or tracking coordinates in loose arrays, each card is its own self-contained object. It stores its own assets (text vs. image), execution round, state (hidden, revealed, matched), and dynamically updates its own bounding boxes (x_initial, y_initial, etc.) depending on the active layout mode.
+
+Centralized Game State (GameState): A single class holds the source of truth for the entire application session. It tracks the score metrics, completion status flags for each round, the active view mode (Round 1, Round 2, or Gallery Mode), and handles references to text elements to allow on-the-fly updates without screen flickering.
+
+🔀 2. Deck Segregation & Layout Logic
+Determined Deck Split: The deck logic takes a flat array of concepts and their corresponding visual illustrations, pairs them up, and splits them cleanly down the middle. Twelve unique concepts (24 cards) are assigned exclusively to Round 1, and the remaining 12 concepts are funneled into Round 2.
+
+Dynamic Coordinate Mapping: We decoupled coordinates from card instantiation. The game loop calls a layout function that calculates the geometric grid positioning on demand. If the game is in standard matching mode, it scales cards down into a compact grid. If the game enters Gallery Mode, it instantly recalculates coordinates to position the active pair into a centered, high-resolution layout view.
+
+🔄 3. The Unifying Game Loop (memory_game_logic)
+The matching system is handled sequentially by a robust state machine that waits for user interaction:
+
+First Card Selection: The system enters a blocking click loop until a valid, unrevealed card belonging to the active round is selected.
+
+State Assessment Interception: During that blocking loop, if the user clicks on a persistent top-navigation button (Reset, Round 1, Round 2, Gallery Mode), the selection is intercepted, state flags are updated, and the layout engine recalculates the entire UI.
+
+Second Card Selection: If a first card is successfully chosen, it flips over, and the game enters a second blocking loop to wait for a companion card.
+
+Evaluation & Verification:
+
+If they match: The cards are permanently flagged as is_matched, score metrics increment, and text fields update. If a round reaches 12 pairs, it sets a milestone completion flag, unlocking subsequent game modes.
+
+If they mismatch: The UI temporarily freezes for 1.0 seconds using an explicit delay timer so the player can process the error before both cards dynamically flip face-down again.
+
+🖼️ 4. The Gallery Mode Pagination Engine
+Once standard gameplay is cleared, the system converts from a matching puzzle into an educational review tool.
+
+Boundary-Relative Coordinates: Instead of hardcoding pagination buttons to absolute pixel values on the canvas, the button positions are dynamically calculated relative to the boundaries of the high-resolution cards.
+
+State-Driven UI Bounds: The application reads the index position inside the paired array. If the user is on the first card, the "Previous" arrow coordinate map is completely removed from memory, preventing out-of-bounds selection errors. The moment a user clicks a valid navigation arrow, the event loop passes back the newly mutated dictionary limits, ensuring click boundaries match what is visually drawn on the screen.
+'''
