@@ -149,13 +149,13 @@ def main():
 
 def setup_game(canvas, game_state):
     create_divided_deck(programming_terms, game_state)
-    ui_elements = render_window_chrome(canvas, game_state)
+    ui_elements = render_window(canvas, game_state)
     update_board_layout_coordinates(game_state)
     draw_active_scene(canvas, game_state, ui_elements)
     return ui_elements
 
 
-def render_window_chrome(canvas, game_state):
+def render_window(canvas, game_state):
     canvas.clear()
     color = "rgb(245, 235, 220)"  # Warm Ivory
     canvas.create_rectangle(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT, color)
@@ -308,7 +308,7 @@ def draw_active_scene(canvas, state, ui):
         current_pair["img_card"].draw(canvas, STANFORD_CARD_FACE_DOWN, force_face_up=True)
         current_pair["text_card"].draw(canvas, STANFORD_CARD_FACE_DOWN, force_face_up=True)
         render_gallery_pagination_buttons(canvas, state, ui)
-        
+        create_message(canvas, CANVAS_WIDTH/2, CANVAS_HEIGHT-30, "God bless you! 🤍 Keep thinking, learning, and coding every day.", 18, MAIN_TEXT, anchor="center")
         print(f"🖼️ Displaying Gallery Pair [{state.gallery_index + 1}]: Description Asset -> '{current_pair['text_card'].asset_path}' | Illustration Asset -> '{current_pair['img_card'].asset_path}'")
     else:
         for card in state.deck:
@@ -382,12 +382,12 @@ def memory_game_logic(canvas, state, ui):
             if state.current_round == 1:
                 state.round_1_score += 1
                 current_score = state.round_1_score
-                canvas.change_text(state.r1_ui_pairs, f"Pairs found: {current_score}/{PAIRS_PER_ROUND}")
+                canvas.change_text(state.r1_ui_pairs, f"Round 1:  {current_score}/{PAIRS_PER_ROUND} Pairs")
                 canvas.change_text(state.r1_ui_console, "✅ Excellent! You found a pair.")
             else:
                 state.round_2_score += 1
                 current_score = state.round_2_score
-                canvas.change_text(state.r2_ui_pairs, f"Pairs found: {current_score}/{PAIRS_PER_ROUND}")
+                canvas.change_text(state.r2_ui_pairs, f"Round 2:  {current_score}/{PAIRS_PER_ROUND} Pairs")
                 canvas.change_text(state.r2_ui_console, "✅ Excellent! You found a pair.")
             
             time.sleep(0.5)
@@ -396,12 +396,12 @@ def memory_game_logic(canvas, state, ui):
                 if state.current_round == 1:
                     state.round_1_complete = True
                     canvas.change_text(state.r1_ui_console, "🎉 Round 1 Complete! Round 2 is now unlocked.")
-                    ui = render_window_chrome(canvas, state)
+                    ui = render_window(canvas, state)
                     draw_active_scene(canvas, state, ui)
                 else:
                     state.round_2_complete = True
                     canvas.change_text(state.r2_ui_console, "🎉 Congratulations! Study Mode unlocked.")
-                    ui = render_window_chrome(canvas, state)
+                    ui = render_window(canvas, state)
                     draw_active_scene(canvas, state, ui)
         else:
             if state.current_round == 1:
@@ -432,7 +432,7 @@ def get_clicked_card(canvas, state, ui, first_card=None):
            (ui["r1_zone"]["y_initial"] <= click_y <= ui["r1_zone"]["y_final"]):
             if state.current_round != 1:
                 state.current_round = 1
-                ui = render_window_chrome(canvas, state)
+                ui = render_window(canvas, state)
                 update_board_layout_coordinates(state)
                 draw_active_scene(canvas, state, ui)
                 return "CHANGE_ROUND", ui
@@ -444,7 +444,7 @@ def get_clicked_card(canvas, state, ui, first_card=None):
                 continue
             elif state.current_round != 2:
                 state.current_round = 2
-                ui = render_window_chrome(canvas, state)
+                ui = render_window(canvas, state)
                 update_board_layout_coordinates(state)
                 draw_active_scene(canvas, state, ui)
                 return "CHANGE_ROUND", ui
@@ -459,7 +459,7 @@ def get_clicked_card(canvas, state, ui, first_card=None):
                 continue
             elif state.current_round != 3:
                 state.current_round = 3
-                ui = render_window_chrome(canvas, state)
+                ui = render_window(canvas, state)
                 update_board_layout_coordinates(state)
                 draw_active_scene(canvas, state, ui)
                 return "CHANGE_ROUND", ui
@@ -468,7 +468,7 @@ def get_clicked_card(canvas, state, ui, first_card=None):
             if ui["prev_zone"] and (ui["prev_zone"]["x_initial"] <= click_x <= ui["prev_zone"]["x_final"]) and \
                (ui["prev_zone"]["y_initial"] <= click_y <= ui["prev_zone"]["y_final"]):
                 state.gallery_index -= 1
-                ui = render_window_chrome(canvas, state)
+                ui = render_window(canvas, state)
                 update_board_layout_coordinates(state)  
                 draw_active_scene(canvas, state, ui)
                 continue 
@@ -476,7 +476,7 @@ def get_clicked_card(canvas, state, ui, first_card=None):
             if ui["next_zone"] and (ui["next_zone"]["x_initial"] <= click_x <= ui["next_zone"]["x_final"]) and \
                (ui["next_zone"]["y_initial"] <= click_y <= ui["next_zone"]["y_final"]):
                 state.gallery_index += 1
-                ui = render_window_chrome(canvas, state)
+                ui = render_window(canvas, state)
                 update_board_layout_coordinates(state)  
                 draw_active_scene(canvas, state, ui)
                 continue
