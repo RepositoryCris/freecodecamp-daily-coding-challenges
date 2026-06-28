@@ -1,15 +1,55 @@
 function getPeriodicSpelling(word) {
-  const fragments = [];
+  // Create a Set of element symbols for O(1) lookup
+  const elementSet = new Set(periodicElements.map((el) => el.toLowerCase()));
 
-  for (let i = 0; i <= word.length; i++) {
-    fragments[i] = word.slice(i * 2, 2 * i + 2);
-    console.log(fragments[i]);
+  // Store the original casing for each element
+  const elementMap = {};
+  periodicElements.forEach((el) => {
+    elementMap[el.toLowerCase()] = el;
+  });
+
+  const result = [];
+
+  function backtrack(startIndex) {
+    // Base case: we've consumed the entire word
+    if (startIndex === word.length) {
+      return true;
+    }
+
+    // Try 1-letter symbol
+    const oneLetter = word[startIndex].toLowerCase();
+    if (elementSet.has(oneLetter)) {
+      result.push(elementMap[oneLetter]);
+      if (backtrack(startIndex + 1)) {
+        return true;
+      }
+      result.pop(); // Backtrack
+    }
+
+    // Try 2-letter symbol (if there are at least 2 characters left)
+    if (startIndex + 1 < word.length) {
+      const twoLetters = word.slice(startIndex, startIndex + 2).toLowerCase();
+      if (elementSet.has(twoLetters)) {
+        result.push(elementMap[twoLetters]);
+        if (backtrack(startIndex + 2)) {
+          return true;
+        }
+        result.pop(); // Backtrack
+      }
+    }
+
+    return false;
   }
 
-  return word;
+  // Start the backtracking
+  if (backtrack(0)) {
+    return result;
+  } else {
+    return [];
+  }
 }
 
-[
+const periodicElements = [
   "H",
   "He",
   "Li",
