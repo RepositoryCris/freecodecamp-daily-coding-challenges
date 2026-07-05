@@ -1,4 +1,9 @@
 function migrateRecord(schema, record) {
+  schema.forEach((value, index) => {
+    if (schema[index] === record[index]) {
+      console.log("found");
+    }
+  });
   return schema;
 }
 
