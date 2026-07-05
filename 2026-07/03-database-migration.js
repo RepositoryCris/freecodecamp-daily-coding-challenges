@@ -1,10 +1,12 @@
 function migrateRecord(schema, record) {
-  schema.forEach((value, index) => {
-    if (schema[index] === record[index]) {
-      console.log("found");
+  // Loop through schema keys
+  for (let key in schema) {
+    // Only add if the key doesn't exist in record
+    if (!record.hasOwnProperty(key)) {
+      record[key] = schema[key];
     }
-  });
-  return schema;
+  }
+  return record;
 }
 
 console.log(migrateRecord({ username: "", posts: 0 }, { verified: true })); // should return { username: "", posts: 0, verified: true }.
@@ -36,3 +38,10 @@ console.log(
     { username: "camper", email: "camper@freecodecamp.org", role: "admin" },
   ),
 ); // should return { username: "camper", email: "camper@freecodecamp.org", role: "admin", posts: 0, verified: false, banned: false }.
+
+/*
+Database Migration
+Given two database objects, return the second object with any missing properties from the first filled in.
+
+Fields that already exist in the record should not be overwritten.
+*/
