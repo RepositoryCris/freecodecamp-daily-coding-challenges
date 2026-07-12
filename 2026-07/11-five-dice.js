@@ -1,44 +1,42 @@
 function fiveDice(dice) {
-  const frecuencies = new Map();
+  // 1. Build the frequency map in a single pass
+  const frequencies = new Map();
+  for (const die of dice) {
+    frequencies.set(die, (frequencies.get(die) || 0) + 1);
+  }
 
-  for (let i = 0; i < dice.length; i++) {
-    if (frecuencies.has(dice[i])) {
-      let count = frecuencies.get(dice[i]);
-      frecuencies.set(dice[i], count + 1);
-    } else {
-      frecuencies.set(dice[i], 1);
+  // 2. Sequence Check (Straights)
+  // Derive the unique sorted values directly from the map keys
+  const uniqueSorted = [...frequencies.keys()].sort((a, b) => a - b);
+
+  if (uniqueSorted.length >= 4) {
+    const sequenceString = uniqueSorted.join("");
+
+    if (sequenceString === "12345" || sequenceString === "23456") {
+      return "large straight";
+    }
+
+    // Check if any valid small straight substring exists
+    if (
+      ["1234", "2345", "3456"].some((straight) =>
+        sequenceString.includes(straight),
+      )
+    ) {
+      return "small straight";
     }
   }
 
-  const counts = Array.from(frecuencies.values());
-  counts.sort((a, b) => b - a);
-  console.log(counts);
+  // 3. Frequency Check (Pairs, Triplets, Full Houses)
+  const counts = [...frequencies.values()].sort((a, b) => b - a);
 
-  if (counts[0] === 5) {
-    return "five of a kind";
-  }
+  if (counts[0] === 5) return "five of a kind";
+  if (counts[0] === 4) return "four of a kind";
+  if (counts[0] === 3 && counts[1] === 2) return "full house";
+  if (counts[0] === 3) return "three of a kind";
+  if (counts[0] === 2 && counts[1] === 2) return "two pair";
+  if (counts[0] === 2) return "pair";
 
-  if (counts[0] === 4) {
-    return "four of a kind";
-  }
-
-  if (counts[0] === 3 && counts[1] === 2) {
-    return "full house";
-  }
-
-  if (counts[0] === 3) {
-    return "three of a kind";
-  }
-
-  if (counts[0] === 2 && counts[1] === 1) {
-    return "pair";
-  }
-
-  if (counts[0] === 1) {
-    return "no pair";
-  }
-
-  return "dice";
+  return "no pair";
 }
 
 console.log(fiveDice([1, 1, 1, 1, 1])); // should return "five of a kind".
