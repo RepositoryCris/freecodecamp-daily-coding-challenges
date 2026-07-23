@@ -1,17 +1,30 @@
 function elevatorStops(currentFloor, stops) {
-  const copy = [...stops];
-  let current = currentFloor;
-  let distance = 0;
-  let distance_array = [];
+  const up = stops
+    .filter((floor) => floor > currentFloor)
+    .sort((a, b) => a - b);
+  const down = stops
+    .filter((floor) => floor < currentFloor)
+    .sort((a, b) => b - a);
 
-  for (let i = 0; i < stops.length; i++) {
-    distance = Math.abs(currentFloor - stops[i]);
-    distance_array.push(distance);
-    console.log(distance_array);
+  if (up.length === 0) return down;
+  if (down.length === 0) return up;
+
+  // Calculate total travel distance for starting UP vs starting DOWN
+  const highest = up[up.length - 1];
+  const lowest = down[down.length - 1];
+
+  // UP first: go up to highest, then down to lowest
+  const distIfUpFirst = highest - currentFloor + (highest - lowest);
+
+  // DOWN first: go down to lowest, then up to highest
+  const distIfDownFirst = currentFloor - lowest + (highest - lowest);
+
+  // Compare total distance. If tied (distIfUpFirst === distIfDownFirst), go UP first (<=" handles tie)
+  if (distIfUpFirst <= distIfDownFirst) {
+    return [...up, ...down];
+  } else {
+    return [...down, ...up];
   }
-  console.log(Math.min(distance_array));
-
-  return currentFloor;
 }
 
 console.log(elevatorStops(5, [2, 8, 3, 9])); // should return [3, 2, 8, 9].
