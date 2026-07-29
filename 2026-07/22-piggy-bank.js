@@ -1,5 +1,22 @@
 function piggyBank(coins) {
-  return coins;
+  const bank = [
+    { coin: "pennies", value: 0.01 },
+    { coin: "nickels", value: 0.05 },
+    { coin: "dimes", value: 0.1 },
+    { coin: "quarters", value: 0.25 },
+  ];
+
+  let total = 0;
+
+  // Use forEach when you need side effects
+  bank.forEach((item) => {
+    const count = coins[item.coin] || 0; // Default to 0 if coin doesn't exist
+    total += count * item.value;
+  });
+
+  // Round to avoid floating point issues
+  const roundedTotal = Math.round(total * 100) / 100;
+  return `$${roundedTotal.toFixed(2)}`;
 }
 
 console.log(piggyBank({ pennies: 3, nickels: 5, dimes: 2, quarters: 6 })); // should return "$1.98".
