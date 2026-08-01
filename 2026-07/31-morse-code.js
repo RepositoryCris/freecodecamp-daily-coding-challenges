@@ -29,14 +29,24 @@ function decodeMorse(code) {
   };
 
   const words = code.split("   ");
+  let sentence = [];
 
-  console.log("words", words);
+  for (let i = 0; i < words.length; i++) {
+    let decode_word = []; // Added 'let' here
+    let word = words[i];
+    let letters = word.split(" ");
 
-  const letters = code.split(" ");
+    // Changed from map() to forEach()
+    letters.forEach((letter) => {
+      if (morse_to_text.hasOwnProperty(letter)) {
+        decode_word.push(morse_to_text[letter]);
+      }
+    });
 
-  console.log("letters", letters);
+    sentence.push(decode_word.join(""));
+  }
 
-  return code;
+  return sentence.join(" ");
 }
 
 console.log(decodeMorse("--..")); // should return "Z".
