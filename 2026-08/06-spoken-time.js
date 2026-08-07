@@ -1,22 +1,42 @@
 function getSpokenTime(hourAngle, minuteAngle) {
-  const hours = hourAngle * (12 / 360);
-  console.log("hours", hours);
+  // Derive exact total hours from the hour hand angle (30 deg/hr)
+  const totalHours = hourAngle / 30;
+  const rawHour = Math.floor(totalHours);
 
-  const restOfHours =
-    hourAngle * (12 / 360) - Math.trunc(hourAngle * (12 / 360));
-  console.log("restOfHours", restOfHours);
+  // Minutes derived directly from the hour hand's movement within the hour
+  // (30 deg = 60 min, so fractional degrees * 2 = minutes)
+  const minutesFromHourHand = Math.round((totalHours - rawHour) * 60);
 
-  const minutes = "m";
-  return "";
+  // Fallback to minute hand angle if minute hand is specified without hour drift
+  const minutesFromMinuteHand = Math.round(minuteAngle / 6);
+
+  // Use hour hand precision if available, otherwise minute hand
+  const minutes = minutesFromHourHand || minutesFromMinuteHand;
+
+  // 12-hour clock formatting
+  const format12 = (h) => (h % 12 === 0 ? 12 : h % 12);
+  const Y = format12(rawHour);
+  const Z = format12(rawHour + 1);
+
+  // Spoken formatting rules
+  if (minutes === 0) return `${Y} o'clock`;
+  if (minutes === 15) return `quarter past ${Y}`;
+  if (minutes === 30) return `half past ${Y}`;
+  if (minutes === 45) return `quarter to ${Z}`;
+
+  return minutes < 30
+    ? `${minutes} minutes past ${Y}`
+    : `${60 - minutes} minutes to ${Z}`;
 }
 
-console.log(getSpokenTime(90, 0)); // should return "3 o'clock".
-console.log(getSpokenTime(160, 120)); // should return "20 minutes past 5".
-console.log(getSpokenTime(255, 180)); // should return "half past 8".
-console.log(getSpokenTime(67.5, 92)); // should return "quarter past 2".
-console.log(getSpokenTime(200, 240)); // should return "20 minutes to 7".
-console.log(getSpokenTime(322.5, 273)); // should return "quarter to 11".
-console.log(getSpokenTime(117.5, 335)); // should return "5 minutes to 4".
+// Test outputs:
+console.log(getSpokenTime(90, 0)); // "3 o'clock"
+console.log(getSpokenTime(160, 120)); // "20 minutes past 5"
+console.log(getSpokenTime(255, 180)); // "half past 8"
+console.log(getSpokenTime(67.5, 92)); // "quarter past 2"
+console.log(getSpokenTime(200, 240)); // "20 minutes to 7"
+console.log(getSpokenTime(322.5, 273)); // "quarter to 11"
+console.log(getSpokenTime(117.5, 335)); // "5 minutes to 4"
 
 /*
 Spoken Time
