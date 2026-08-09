@@ -59,6 +59,21 @@ console.log(
 ); // should return true.
 console.log(isValidNonogram([3, 2, 3], [0, 0, 0, 1, 0, 0, 1, 0, 0, 0])); // should return false.
 
+/*  Using String Manipulation
+function isValidNonogram(clue, cells) {
+  // Convert cells to string of blocks
+  const blocks = cells
+    .join('')
+    .split('0')
+    .filter(block => block.length > 0)
+    .map(block => block.length);
+  
+  // Compare arrays
+  return blocks.length === clue.length && 
+         blocks.every((block, index) => block === clue[index]);
+}
+*/
+
 /*
 Nonogram Validator
 Given an array of clue numbers and an array of cells, determine whether the cells satisfy the nonogram clue.
