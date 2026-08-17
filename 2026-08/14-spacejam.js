@@ -1,5 +1,9 @@
 function spaceJam(s) {
-  return s;
+  return s
+    .replace(/\s/g, "") // Remove all spaces
+    .toUpperCase() // Convert to uppercase
+    .split("") // Split into array of characters
+    .join("  "); // Join with two spaces
 }
 
 console.log(spaceJam("freeCodeCamp")); // should return "F  R  E  E  C  O  D  E  C  A  M  P".
