@@ -1,5 +1,16 @@
 function squaresWithThree(n) {
-  return n;
+  let current = 1;
+  let count = 0;
+
+  while (current <= n) {
+    const square = String(current ** 2);
+    if (/3/.test(square)) {
+      count++;
+    }
+    current++;
+  }
+
+  return count;
 }
 
 console.log(squaresWithThree(1)); // should return 0.
