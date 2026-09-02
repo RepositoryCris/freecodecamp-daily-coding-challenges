@@ -1,5 +1,54 @@
 function generateHex(color) {
-  return color;
+  const randomColorsDec = [];
+  let r = "";
+  let g = "";
+  let b = "";
+
+  if (color !== "red" && color !== "green" && color !== "blue")
+    return "Invalid color";
+
+  const generateRandomHex = () => {
+    return Math.floor(Math.random() * 16).toString(16);
+  };
+
+  const generateRandomHexPairs = () => {
+    const first = generateRandomHex();
+    const second = generateRandomHex();
+    return first + second;
+  };
+
+  // Generate 3 random hex pairs
+  for (let i = 0; i < 3; i++) {
+    const pair = generateRandomHexPairs();
+    const decimal = parseInt(pair, 16);
+    randomColorsDec.push(decimal);
+  }
+
+  // Sort descending
+  const colors = randomColorsDec.sort((a, b) => b - a);
+
+  // Convert to 2-digit hex with padding
+  const hexColors = colors.map((item) => {
+    return item.toString(16).padStart(2, "0").toUpperCase();
+  });
+
+  // Assign based on dominant color
+  if (color === "red") {
+    r = hexColors[0]; // highest
+    g = hexColors[1]; // middle
+    b = hexColors[2]; // lowest
+  } else if (color === "green") {
+    r = hexColors[1]; // middle
+    g = hexColors[0]; // highest
+    b = hexColors[2]; // lowest
+  } else {
+    // blue
+    r = hexColors[2]; // lowest
+    g = hexColors[1]; // middle
+    b = hexColors[0]; // highest
+  }
+
+  return r + g + b;
 }
 
 console.log(generateHex("yellow")); // should return "Invalid color".
