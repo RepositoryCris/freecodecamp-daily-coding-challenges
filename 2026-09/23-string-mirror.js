@@ -1,5 +1,13 @@
 function isMirror(str1, str2) {
-  return str1;
+  const clean1 = (str1.match(/[a-zA-Z]/g) || []).join("");
+  const clean2 = (str2.match(/[a-zA-Z]/g) || []).join("");
+
+  let mirror = "";
+  for (let i = clean1.length - 1; i >= 0; i--) {
+    mirror += clean1[i];
+  }
+
+  return mirror === clean2;
 }
 
 console.log(isMirror("helloworld", "helloworld")); // should return false.
