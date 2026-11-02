@@ -1,4 +1,5 @@
 function count(text, pattern) {
+  const isContaining = false;
   return text;
 }
 
