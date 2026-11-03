@@ -1,6 +1,15 @@
 function count(text, pattern) {
-  const isContaining = false;
-  return text;
+  let count = 0;
+  let fromIndex = 0;
+
+  while (fromIndex <= text.length) {
+    const index = text.indexOf(pattern, fromIndex);
+    if (index === -1) break;
+    count++;
+    fromIndex = index + 1; // +1 so overlapping matches are caught
+  }
+
+  return count;
 }
 
 console.log(count("abcdefg", "def")); // should return 1.
