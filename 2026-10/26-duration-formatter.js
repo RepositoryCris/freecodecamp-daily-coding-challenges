@@ -1,4 +1,10 @@
 function format(seconds) {
+  const hours = 3600;
+  const minutes = 60;
+
+  if (seconds >= hours) {
+  } else if (seconds >= minutes) {
+  }
   return seconds;
 }
 
