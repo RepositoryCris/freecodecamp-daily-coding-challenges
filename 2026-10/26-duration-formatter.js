@@ -1,11 +1,16 @@
-function format(seconds) {
-  const hours = 3600;
-  const minutes = 60;
+const pad2 = (n) => String(n).padStart(2, "0");
 
-  if (seconds >= hours) {
-  } else if (seconds >= minutes) {
-  }
-  return seconds;
+function format(totalSeconds) {
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor(totalSeconds / 60) % 60;
+  const seconds = totalSeconds % 60;
+
+  const parts =
+    hours > 0
+      ? [hours, pad2(minutes), pad2(seconds)]
+      : [minutes, pad2(seconds)];
+
+  return parts.join(":");
 }
 
 console.log(format(500)); // should return "8:20".
