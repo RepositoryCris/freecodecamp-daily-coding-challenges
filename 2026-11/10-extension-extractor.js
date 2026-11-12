@@ -1,10 +1,16 @@
 function getExtension(filename) {
-  const extension = filename.split(".")
+  if (filename.indexOf(".") === -1) return "none";   // no dot
 
-  if (extension.at(-1) === undefined){
-    return "none"
+  let extensionString = [];
+  let i = filename.length - 1;
+
+  while (i >= 0 && filename[i] !== ".") {
+    extensionString.unshift(filename[i]);
+    i--;
   }
-  return extension.at(-1);
+
+  if (extensionString.length === 0) return "none";   // trailing dot
+  return extensionString.join("");
 }
 
 
