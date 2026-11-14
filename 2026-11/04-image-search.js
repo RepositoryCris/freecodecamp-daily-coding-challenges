@@ -1,7 +1,13 @@
 function imageSearch(images, term) {
-  
-  return images;
+  const found = [];
+  for (let item of images) {
+    if (item.toLowerCase().includes(term.toLowerCase())) {
+      found.push(item);
+    }
+  }
+  return found;
 }
+
 
 console.log(imageSearch(["dog.png", "cat.jpg", "parrot.jpeg"], "dog"))// should return ["dog.png"].
 console.log(imageSearch(["Sunset.jpg", "Beach.png", "sunflower.jpeg"], "sun"))// should return ["Sunset.jpg", "sunflower.jpeg"].
