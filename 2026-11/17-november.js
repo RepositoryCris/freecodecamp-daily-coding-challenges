@@ -1,14 +1,26 @@
 function isMatch(fingerprintA, fingerprintB) {
-  const allowedPercentage = fingerprintA.length / 10 + fingerprintA.length;
-
-  console.log(fingerprintB.length);
-  console.log(allowedPercentage);
-
-  if (fingerprintB.length <= allowedPercentage) {
-    return true;
-  } else {
+  // Gate 1: lengths must match
+  if (fingerprintA.length !== fingerprintB.length) {
     return false;
   }
+
+  const length = fingerprintA.length;
+  const allowedMismatches = length / 10; // 10% of length
+
+  let mismatches = 0;
+
+  // Gate 2: count differing characters
+  for (let i = 0; i < length; i++) {
+    if (fingerprintA[i] !== fingerprintB[i]) {
+      mismatches++;
+    }
+    // Early exit: no point continuing if we already exceed the limit
+    if (mismatches > allowedMismatches) {
+      return false;
+    }
+  }
+
+  return mismatches <= allowedMismatches;
 }
 
 /*
