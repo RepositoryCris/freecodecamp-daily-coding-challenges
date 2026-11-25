@@ -1,4 +1,15 @@
+const regularExpression = /[a-z]/i;
+
 function countCharacters(sentence) {
+  let counter = 0; //[]
+
+  for (let character of sentence) {
+    if (regularExpression.test(character)) {
+      counter++;
+    }
+    console.log(counter);
+  }
+
   return sentence;
 }
 
