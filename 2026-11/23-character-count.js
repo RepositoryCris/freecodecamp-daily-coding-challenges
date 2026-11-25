@@ -1,16 +1,23 @@
 const regularExpression = /[a-z]/i;
 
 function countCharacters(sentence) {
-  let counter = 0; //[]
+  const characterCount = new Map();
 
   for (let character of sentence) {
     if (regularExpression.test(character)) {
-      counter++;
+      character = character.toLowerCase();
+
+      if (characterCount.has(character)) {
+        characterCount.set(character, characterCount.get(character) + 1);
+      } else {
+        characterCount.set(character, 1);
+      }
     }
-    console.log(counter);
   }
 
-  return sentence;
+  return [...characterCount]
+    .map(([letter, count]) => `${letter} ${count}`)
+    .sort();
 }
 
 console.log(countCharacters("hello world")); // should return ["d 1", "e 1", "h 1", "l 3", "o 2", "r 1", "w 1"].
