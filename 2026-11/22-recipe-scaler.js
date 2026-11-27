@@ -1,5 +1,14 @@
 function scaleRecipe(ingredients, scale) {
-  return ingredients;
+  const scaled = [];
+
+  for (let ingredient of ingredients) {
+    const parts = ingredient.trim().split(/\s+/);
+    const newQuantity = parseFloat(parts[0]) * scale;
+    parts[0] = Math.round(newQuantity * 1e6) / 1e6;
+    scaled.push(parts.join(" "));
+  }
+
+  return scaled;
 }
 
 /*
